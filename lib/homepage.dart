@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,12 +10,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  //final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   //final GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
-  DateTime? _selectedDate ;
+  //DateTime? _selectDate();
+  TimeOfDay? _selectedTime ;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  
+  get selectedTime => null;
 
   @override
   void dispose() {
@@ -88,28 +93,58 @@ class _HomePageState extends State<HomePage> {
                   height: 10,
                 ),
                 //date picker
-                Form(
-                  key: _formKey,
-                  child: TextField(
-                    controller: _dateController,
-                    decoration: const InputDecoration(
-                        labelText: 'Pick a Date',
-                        filled: true,
-                        prefixIcon: Icon(
-                          Icons.calendar_today,
+                TextField(
+                  controller: _dateController,
+                  decoration: const InputDecoration(
+                      labelText: 'Pick a Date',
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.calendar_today,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blue,
                         ),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.blue,
-                          ),
-                        )),
-                    readOnly: true,
-                    onTap: () {
-                      _selectDate();
-                    },
-                  ),
+                      )),
+                  readOnly: true,
+                  onTap: () async {
+                    _selectDate();
+                  },
+                ),
+                SizedBox(height: 10),
+                //time picker
+                TextField(
+                  controller: _timeController,
+                  decoration: const InputDecoration(
+                      labelText: 'Pick a Date',
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.watch_later_outlined,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                        ),
+                      )),
+                  readOnly: true,
+                  onTap: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: selectedTime,
+                    );
+                    if (pickedTime != null) {
+                      setState(() {
+                        _selectedTime = pickedTime;
+                        _timeController.text = _selectedTime!.format(context); 
+                      });
+                    }
+                  },
                 ),
               ],
             ),
@@ -119,6 +154,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // ignore: unused_element
   Future<void> _selectDate() async {
     DateTime? _picked = await showDatePicker(
       context: context,
@@ -126,9 +162,9 @@ class _HomePageState extends State<HomePage> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (_picked != null ) {
+    if (_picked != null) {
       setState(() {
-        _dateController.text =  _picked.toString().split("")[0];
+        _dateController.text = DateFormat('yyyy-MM-dd').format(_picked);
       });
     }
   }

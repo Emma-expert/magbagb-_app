@@ -3,7 +3,7 @@
 This is a reminder app, built with Flutter SDK. 
 
 ## How to Run
-- first: 'flutter clean' 
+- first: 'flutter clean' to remove any build artifacts and dependencies stored in the build directory.
 - second: 'flutter pub get' to install all important dependencies 
 - third: 'flutter run' to run the app. Make sure you select a target device on which to install your app
 
