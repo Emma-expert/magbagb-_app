@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:magbagbe_app/models/reminder.dart';
+import 'package:magbagbe_app/models/reminder_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,13 +16,50 @@ class _HomePageState extends State<HomePage> {
   //final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   //final GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
   //DateTime? _selectDate();
-  TimeOfDay? _selectedTime ;
+  TimeOfDay? _selectedTime;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  
+
   get selectedTime => null;
+  List<Reminder> _reminders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReminders();
+  }
+
+  Future<void> _loadReminders() async {
+    final reminders = await ReminderManager.loadReminders();
+    setState(() {
+      _reminders = reminders;
+    });
+  }
+
+  void _addReminder() async {
+    if (_titleController.text.isEmpty || _descriptionController.text.isEmpty) {
+      return;
+    }
+    //final DateTime? picked = await _selectDate();
+    //var selectDate = _selectDate();
+    var reminder = Reminder(
+      title: _titleController.text,
+      description: _descriptionController.text,
+      dateTime: DateTime.now(),
+    );
+    final newReminder = reminder;
+
+    setState(() {
+      _reminders.add(newReminder);
+    });
+
+    ReminderManager.saveReminders(_reminders);
+
+    _titleController.clear();
+    _descriptionController.clear();
+  }
 
   @override
   void dispose() {
@@ -114,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                     _selectDate();
                   },
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 //time picker
                 TextField(
                   controller: _timeController,
@@ -132,20 +172,35 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.blue,
                         ),
                       )),
-                  readOnly: true,
                   onTap: () async {
                     final TimeOfDay? pickedTime = await showTimePicker(
                       context: context,
-                      initialTime: selectedTime,
+                      initialTime: TimeOfDay.now(),
                     );
                     if (pickedTime != null) {
                       setState(() {
                         _selectedTime = pickedTime;
-                        _timeController.text = _selectedTime!.format(context); 
+                        _timeController.text = _selectedTime!.format(context);
                       });
                     }
                   },
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _addReminder();
+                      },
+                      child: Text('Set Reminder'),
+                      style: const ButtonStyle(
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           ],
